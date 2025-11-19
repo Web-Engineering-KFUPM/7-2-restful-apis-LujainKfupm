@@ -3,8 +3,6 @@ import cors from "cors";
 import dotenv from "dotenv";
 
 dotenv.config();
-await connectDB(process.env.MONGO_URL);
-
 import { connectDB } from "./db.js";
 import { Song } from "./models/song.model.js";
 
@@ -56,6 +54,23 @@ app.post("/api/songs", async (req, res) => {
 
 
 // /api/songs/:id (Update song)
+app.put("/api/songs/:id", async (req, res) => {
+    try {
+        const updated = await Song.findByIdAndUpdate(
+            req.params.id,
+            req.body || {},
+            { new: true, runValidators: true, context: "query" }
+        );
+
+        if (!updated) {
+            return res.status(404).json({ message: "Song not found" });
+        }
+
+        res.json(updated);
+    } catch (err) {
+        res.status(400).json({ message: err.message || "Update failed" });
+    }
+});
 
 
 
